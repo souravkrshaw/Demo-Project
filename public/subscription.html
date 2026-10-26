@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Subscription — Smart QR Print</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f6f8fc;--card:#fff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--pri:#2f5be7;--sel:#dce6fb;--ok:#22a06b;--amb:#e8a23a;--bad:#d64545;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#121a30;--ink:#e8edf8;--mut:#8b97b3;--line:#232d4a;--sel:#1d2f63;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#121a30;--ink:#e8edf8;--mut:#8b97b3;--line:#232d4a;--sel:#1d2f63;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100vh}
+.mono{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-size:11px}
+header{background:#0c1426;color:#cbd5e8;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:14px 24px}
+header .brand{color:#fff;font-weight:700;letter-spacing:.18em;text-decoration:none;font-size:15px}
+header nav{display:flex;flex-wrap:wrap;gap:6px}
+.nb{background:none;border:0;color:#cbd5e8;font:inherit;font-size:14px;padding:9px 12px;border-radius:6px;cursor:pointer;text-decoration:none}
+.nb:hover,.nb.on{background:#2646b8;color:#fff}
+main{max-width:1100px;margin:0 auto;padding:40px 20px 70px}
+h1{font-size:clamp(28px,5vw,48px);line-height:1.1;margin:10px 0 12px;font-weight:500;letter-spacing:-.02em}
+h2{margin:0 0 10px;font-weight:600}
+.eye{color:var(--pri)}
+.mut{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);padding:26px;border-radius:12px}
+.grid2{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin:20px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}.stat b{display:block;font-size:28px;margin-top:4px}
+.price{font-size:46px;font-weight:600;margin:16px 0}.price small{font-size:15px;font-weight:400;color:var(--mut)}
+.prem{background:#0c1426;color:#fff;border-color:#0c1426}.prem .mut{color:#9db0d6}
+ul.f{list-style:none;padding:0;margin:14px 0 22px;display:grid;gap:9px;font-size:14px}ul.f li:before{content:"✓ ";color:var(--ok);font-weight:700}
+.btn{display:inline-block;background:var(--pri);color:#fff;border:0;border-radius:8px;padding:13px 20px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;text-align:center}
+.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5;cursor:default}
+.btn.o{background:none;color:var(--ink);border:1px solid var(--line)}.btn.am{background:var(--amb);color:#3a2800}.btn.bad{background:var(--bad)}
+.btn.s{padding:7px 12px;font-size:13px;border-radius:6px}.btn.w{width:100%}
+label{display:block;font-size:13px;color:var(--mut);margin:14px 0 6px}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
+.narrow{max-width:460px;margin:0 auto}
+.bar{height:8px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-top:18px}.bar i{display:block;height:100%;background:var(--amb)}
+.hero{background:linear-gradient(135deg,#1b3a9e,#2f5be7);color:#fff;border:0}
+.hero dl{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));background:rgba(255,255,255,.12);padding:14px;border-radius:10px;margin:20px 0 0;font-size:13px}.hero dt{opacity:.75}.hero dd{margin:2px 0 0;font-weight:600}
+.lock{text-align:center;border:2px solid rgba(214,69,69,.45)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:24px 0 14px}
+.tabs button{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:9px 14px;border-radius:8px;font:inherit;cursor:pointer}.tabs button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mut);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.bd{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;background:var(--sel);color:var(--pri)}.bd.ok{background:rgba(34,160,107,.15);color:var(--ok)}.bd.no{background:rgba(214,69,69,.15);color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}.row>div{flex:1;min-width:140px}
+#qr{display:inline-block;padding:10px;background:#fff;border:1px solid var(--line);border-radius:12px;margin:8px 0}
+#tst{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0c1426;color:#fff;padding:12px 20px;border-radius:8px;z-index:50;display:none;max-width:90vw}
+a.l{color:var(--pri);cursor:pointer;text-decoration:underline;background:none;border:0;font:inherit;padding:0}
+</style></head><body>
+<header>
+ <a class="brand" href="index.html">SMART QR PRINT</a>
+ <nav id="nav"></nav>
+</header>
+<main id="app"><p class="mut">Loading…</p></main>
+<div id="tst"></div>
+<script>
+const $=s=>document.querySelector(s),DAY=864e5;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=d=>new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+let sb,user=null,isAdmin=false,settings=null,busy=false,after=null;
+let St={mode:'in',email:'',pw:'',form:{name:'',shop_name:'',email:'',phone:''},step:'details',code:'',utr:'',acc:null,adm:null,tab:'payments',q:'',newCode:{code:'',max:1},set:{upi_id:'',payee_name:'',premium_price:199}};
+function toast(m){const t=$('#tst');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3500)}
+// ---- same access rules as the DukaanPass app (src/lib/subscription.ts)
+const liveSub=(subs,now=new Date())=>subs.filter(s=>s.status==='active'&&new Date(s.starts_at)<=now&&new Date(s.expires_at)>now).sort((a,b)=>new Date(b.expires_at)-new Date(a.expires_at))[0]||null;
+const accessUntil=(subs,now=new Date())=>{const e=subs.filter(s=>s.status==='active'&&new Date(s.expires_at)>now).map(s=>+new Date(s.expires_at));return e.length?new Date(Math.max(...e)):null};
+const daysLeft=u=>u?Math.max(0,Math.ceil((+u-Date.now())/DAY)):0;
+const upiLink=(id,payee,amt,note)=>'upi://pay?'+new URLSearchParams({pa:id,pn:payee,am:String(amt),cu:'INR',tn:note}).toString();
+const price=()=>settings?settings.premium_price:199;
+
+async function boot(){
+  try{let c={url:'https://c--63cc4909-f638-4119-907e-65f8540ab381-prod.lovable.cloud',key:'sb_publishable_MjFkjcE_c_Vje9GX0i9OZw_32jnY6B5'};try{c=await(await fetch('sub-config.json')).json()}catch(e){}sb=supabase.createClient(c.url,c.key)}
+  catch(e){$('#app').innerHTML='<div class="card narrow"><h2>Cannot start</h2><p class="mut">Subscription service could not be loaded. Check your internet connection and refresh.</p></div>';return}
+  sb.auth.onAuthStateChange((ev)=>{if(['SIGNED_IN','SIGNED_OUT','USER_UPDATED'].includes(ev))loadUser().then(route)});
+  await loadUser();route();
+}
+async function loadUser(){
+  const {data}=await sb.auth.getUser();user=data.user||null;isAdmin=false;settings=null;
+  if(user){
+    const [{data:r},{data:s}]=await Promise.all([sb.from('user_roles').select('role').eq('user_id',user.id),sb.from('app_settings').select('upi_id,payee_name,premium_price').eq('id',1).single()]);
+    isAdmin=!!(r&&r.some(x=>x.role==='admin'));settings=s||null;
+  }
+}
+addEventListener('hashchange',route);
+function go(h){if(location.hash==='#'+h)route();else location.hash=h}
+function route(){
+  const h=(location.hash||'#plans').slice(1),[name,arg]=h.split('/');
+  const guarded=['subscribe','account','admin'];
+  if(guarded.includes(name)&&!user){after=h;return go('auth')}
+  nav(name);
+  if(name==='auth')return viewAuth();
+  if(name==='subscribe'){St.step='details';return viewSubscribe(arg==='trial'?'trial':'premium')}
+  if(name==='account')return viewAccount();
+  if(name==='admin')return viewAdmin();
+  viewPlans();
+}
+function nav(cur){
+  $('#nav').innerHTML='<a class="nb" href="index.html">← Print system</a><button class="nb '+(cur==='plans'?'on':'')+'" data-go="plans">Plans</button>'+
+   (user?'<button class="nb '+(cur==='account'?'on':'')+'" data-go="account">My plan</button>'+(isAdmin?'<button class="nb '+(cur==='admin'?'on':'')+'" data-go="admin">Admin</button>':'')+'<button class="nb" data-act="out">Sign out</button>':'<button class="nb '+(cur==='auth'?'on':'')+'" data-go="auth">Sign in</button>');
+}
+const app=h=>{$('#app').innerHTML=h};
+
+// ---------- Plans
+function viewPlans(){app(`
+ <div class="narrow" style="text-align:center;max-width:680px"><div class="mono eye">Pricing</div><h1>Pick the plan that fits your shop</h1>
+ <p class="mut">Try it free for two weeks, or go Premium and pay instantly with any UPI app.</p></div>
+ <div class="grid2" style="margin-top:36px">
+  <div class="card"><h2>Free Trial</h2><div class="mut">Invite-only access</div><div class="price">₹0<small> / 14 days</small></div>
+   <ul class="f"><li>Full access for 14 days</li><li>Activated with a secret code</li><li>No payment needed</li></ul>
+   <button class="btn o w" data-go="subscribe/trial">Start free trial</button></div>
+  <div class="card prem"><h2>Premium Plan</h2><div class="mut">Everything, every month</div><div class="price">₹${esc(price())}<small> / month</small></div>
+   <ul class="f"><li>Full access, renewed monthly</li><li>Pay by UPI QR in seconds</li><li>Reminder before it expires</li></ul>
+   <button class="btn am w" data-go="subscribe/premium">Get Premium</button></div>
+ </div>`)}
+
+// ---------- Sign in / up
+function viewAuth(){app(`
+ <div class="card narrow"><h1 style="font-size:32px">${St.mode==='in'?'Welcome back':'Create account'}</h1>
+ <form data-form="auth"><label>Email</label><input type="email" data-f="email" value="${esc(St.email)}" required>
+ <label>Password</label><input type="password" data-f="pw" value="${esc(St.pw)}" required>
+ <div style="margin-top:20px"><button class="btn w" ${busy?'disabled':''}>${St.mode==='in'?'Sign in':'Sign up'}</button></div></form>
+ <p style="text-align:center;margin-top:20px"><button class="l mut" data-act="mode">${St.mode==='in'?'New here? Create an account':'Have an account? Sign in'}</button></p></div>`)}
+async function doAuth(){
+  const email=St.email.trim(),pw=St.pw;
+  if(!/^\S+@\S+\.\S+$/.test(email)||pw.length<6||pw.length>72)return toast('Enter a valid email and a password of 6+ characters');
+  busy=true;viewAuth();
+  if(St.mode==='up'){
+    const {error}=await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:location.href.split('#')[0]}});
+    busy=false;if(error){viewAuth();return toast(error.message)}
+    toast('Check your email to confirm your account, then sign in.');St.mode='in';viewAuth();
+  }else{
+    const {error}=await sb.auth.signInWithPassword({email,password:pw});
+    busy=false;if(error){viewAuth();return toast(error.message)}
+    St.pw='';const t=after||'account';after=null;await loadUser();go(t);
+  }
+}
+
+// ---------- Subscribe (details -> trial code / UPI payment)
+async function viewSubscribe(plan){
+  if(St.step==='details'){
+    const {data:c}=await sb.from('clients').select('*').eq('user_id',user.id).maybeSingle();
+    if(c)St.form={name:c.name,shop_name:c.shop_name,email:c.email,phone:c.phone};
+    else if(!St.form.email)St.form.email=user.email||'';
+  }
+  const head=`<div class="mono eye">${plan==='trial'?'Free Trial · 14 days':'Premium · ₹'+esc(price())+'/month'}</div>`;
+  let body;
+  if(St.step==='details'){
+    body=`<form data-form="details" data-plan="${plan}"><h1 style="font-size:30px">Your details</h1>`+
+     [['name','Your name','text'],['shop_name','Shop name','text'],['email','Email','email'],['phone','Phone number','tel']].map(([k,l,t])=>`<label>${l}</label><input type="${t}" data-sf="${k}" value="${esc(St.form[k])}" required>`).join('')+
+     `<div style="margin-top:20px"><button class="btn w" ${busy?'disabled':''}>Continue</button></div></form>`;
+  }else if(plan==='trial'){
+    body=`<h1 style="font-size:30px">Enter your trial code</h1><p class="mut">Ask the admin for your secret code to unlock 14 days of free access.</p>
+     <input placeholder="SECRET-CODE" data-f="code" value="${esc(St.code)}"><div style="margin-top:16px"><button class="btn w" data-act="redeem" ${busy||!St.code.trim()?'disabled':''}>Activate trial</button></div>`;
+  }else{
+    body=`<div style="text-align:center"><h1 style="font-size:30px">Scan to pay ₹${esc(price())}</h1><div id="qr"></div>
+     <p class="mut">Pay to <b style="color:var(--ink)">${esc(settings&&settings.upi_id)}</b> (${esc(settings&&settings.payee_name)}) using any UPI app.</p>
+     <div style="text-align:left"><label>UPI transaction ID (UTR)</label><input data-f="utr" placeholder="12-digit reference from your UPI app" value="${esc(St.utr)}"></div>
+     <div style="margin-top:16px"><button class="btn w" data-act="pay" ${busy||St.utr.trim().length<6?'disabled':''}>I have paid — submit for verification</button></div></div>`;
+  }
+  app(`<div class="card narrow">${head}<div style="margin-top:12px">${body}</div></div>`);
+  if(St.step==='action'&&plan==='premium'&&settings){
+    const el=$('#qr');if(el&&window.QRCode)new QRCode(el,{text:upiLink(settings.upi_id,settings.payee_name,settings.premium_price,('Premium '+St.form.shop_name).slice(0,50)),width:240,height:240});
+  }
+}
+async function saveDetails(plan){
+  const f=St.form,t=k=>String(f[k]||'').trim();
+  if(!t('name')||t('name').length>100)return toast('Name required');
+  if(!t('shop_name')||t('shop_name').length>120)return toast('Shop name required');
+  if(!/^\S+@\S+\.\S+$/.test(t('email'))||t('email').length>255)return toast('Invalid email');
+  if(!/^\+?[0-9 ]{10,15}$/.test(t('phone')))return toast('Enter a valid phone number');
+  busy=true;
+  const {error}=await sb.from('clients').upsert({user_id:user.id,name:t('name'),shop_name:t('shop_name'),email:t('email'),phone:t('phone'),updated_at:new Date().toISOString()});
+  busy=false;if(error)return toast(error.message);
+  St.form={name:t('name'),shop_name:t('shop_name'),email:t('email'),phone:t('phone')};St.step='action';viewSubscribe(plan);
+}
+async function redeem(){
+  busy=true;const {data,error}=await sb.rpc('redeem_trial_code',{_code:St.code});busy=false;
+  if(error)return toast(error.message);
+  toast('Trial active until '+fmt(data));St.code='';go('account');
+}
+async function pay(){
+  busy=true;const {error}=await sb.rpc('submit_payment',{_utr:St.utr});busy=false;
+  if(error)return toast(error.message);
+  toast("Payment submitted. We'll activate your plan once it's verified.");St.utr='';go('account');
+}
+
+// ---------- My plan
+async function viewAccount(){
+  app('<p class="mut">Loading…</p>');
+  fetch('sub-refresh',{method:'POST'}).catch(()=>{});   // lets the print server re-check right away
+  const [{data:s},{data:p}]=await Promise.all([
+    sb.from('subscriptions').select('id,plan,status,starts_at,expires_at').eq('user_id',user.id).order('expires_at',{ascending:false}),
+    sb.from('payments').select('id,amount,utr,status,created_at,admin_note').eq('user_id',user.id).order('created_at',{ascending:false})]);
+  const subs=s||[],pays=p||[],access=liveSub(subs),until=accessUntil(subs),left=daysLeft(until),pending=pays.find(x=>x.status==='pending');
+  let top;
+  if(access){
+    const total=Math.max(1,Math.round((+new Date(access.expires_at)-+new Date(access.starts_at))/DAY)),used=Math.min(total,Math.max(0,total-daysLeft(new Date(access.expires_at))));
+    top=`<div class="card hero"><div class="mono" style="opacity:.8">${access.plan==='trial'?'Free Trial':'Premium'} · Active</div>
+     <h1 style="margin:8px 0">${left} day${left===1?'':'s'} remaining</h1>
+     <div class="bar"><i style="width:${used/total*100}%"></i></div><div style="font-size:12px;opacity:.8;margin-top:6px">Day ${Math.max(1,used)} of ${total}</div>
+     <dl><div><dt>Billing cycle</dt><dd>${access.plan==='trial'?'14-day trial':'Monthly'}</dd></div><div><dt>Cycle started</dt><dd>${fmt(access.starts_at)}</dd></div>
+     <div><dt>Cycle ends</dt><dd>${fmt(access.expires_at)}</dd></div><div><dt>${access.plan==='trial'?'After trial':'Next payment'}</dt><dd>₹${esc(price())} / month</dd></div></dl>
+     ${until&&+until>+new Date(access.expires_at)?`<p style="font-size:12px;opacity:.85">Renewal already paid — access continues until ${fmt(until)}.</p>`:''}
+     ${left<=5?`<button class="btn am" style="margin-top:14px" data-go="subscribe/premium">${access.plan==='trial'?'Upgrade to Premium':'Renew now'}</button>`:''}</div>`;
+  }else{
+    top=`<div class="card lock"><div style="font-size:42px">🔒</div><h1 style="font-size:30px">Your access is locked</h1>
+     <p class="mut">${pending?"Your payment is being verified. Access unlocks as soon as it's approved.":subs.length?'Your subscription has expired. Renew to continue.':"You don't have an active plan yet."}</p>
+     ${pending?'':`<div class="row" style="justify-content:center;margin-top:18px"><button class="btn" style="flex:0 0 auto" data-go="subscribe/premium">Get Premium ₹${esc(price())}</button>${subs.some(x=>x.plan==='trial')?'':'<button class="btn o" style="flex:0 0 auto" data-go="subscribe/trial">Use trial code</button>'}</div>`}</div>`;
+  }
+  app(top+`<div class="card" style="margin-top:20px"><h2>Payments</h2>${pays.length?`<div class="tw" style="border:0"><table><tbody>`+pays.map(x=>`<tr><td>₹${x.amount} · UTR ${esc(x.utr)} · ${fmt(x.created_at)}${x.admin_note?' · '+esc(x.admin_note):''}</td><td><span class="bd ${x.status==='approved'?'ok':x.status==='rejected'?'no':''}">${x.status}</span></td></tr>`).join('')+`</tbody></table></div>`:'<p class="mut">No payments yet.</p>'}</div>
+  <p class="mut" style="margin-top:16px;font-size:13px">Signed in as ${esc(user.email)}. Use this same login in the print server's <code>SUB_EMAIL</code> / <code>SUB_PASSWORD</code> settings so the shop unlocks while this plan is active.</p>`);
+}
+
+// ---------- Admin
+async function viewAdmin(){
+  if(!isAdmin)return app('<div class="card narrow"><p class="mut">You don\'t have access to this page.</p></div>');
+  app('<p class="mut">Loading…</p>');
+  const [c,k,p,s,st]=await Promise.all([
+    sb.from('clients').select('*').order('created_at',{ascending:false}),
+    sb.from('trial_codes').select('*').order('created_at',{ascending:false}),
+    sb.from('payments').select('*').order('created_at',{ascending:false}),
+    sb.from('subscriptions').select('id,user_id,plan,status,starts_at,expires_at').order('expires_at',{ascending:false}),
+    sb.from('app_settings').select('upi_id,payee_name,premium_price').eq('id',1).single()]);
+  St.adm={clients:c.data||[],codes:k.data||[],pays:p.data||[],subs:s.data||[]};if(st.data)St.set=st.data;drawAdmin();
+}
+function drawAdmin(){
+  const A=St.adm,by=Object.fromEntries(A.clients.map(x=>[x.user_id,x])),subsFor=u=>A.subs.filter(x=>x.user_id===u);
+  const pend=A.pays.filter(x=>x.status==='pending').length,act=A.clients.filter(x=>liveSub(subsFor(x.user_id))).length,rev=A.pays.filter(x=>x.status==='approved').reduce((a,x)=>a+x.amount,0);
+  const T={
+   payments:`<div class="tw"><table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>UTR</th><th>Status</th><th></th></tr></thead><tbody>`+(A.pays.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString('en-IN')}</td><td>${esc(by[x.user_id]&&by[x.user_id].shop_name||'—')}<div class="mut" style="font-size:12px">${esc(by[x.user_id]&&by[x.user_id].phone||'')}</div></td><td>₹${x.amount}</td><td class="mono" style="letter-spacing:0">${esc(x.utr)}</td><td><span class="bd ${x.status==='approved'?'ok':x.status==='rejected'?'no':''}">${x.status}</span></td><td>${x.status==='pending'?`<button class="btn s" data-act="rev" data-id="${x.id}" data-ok="1">Approve</button> <button class="btn s o" data-act="rev" data-id="${x.id}" data-ok="0">Reject</button>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="mut" style="text-align:center">No payments yet</td></tr>')+`</tbody></table></div>`,
+   clients:`<input data-f="q" placeholder="Search name, shop, email, phone" value="${esc(St.q)}" style="max-width:340px;margin-bottom:12px"><div class="tw"><table><thead><tr><th>Shop</th><th>Name</th><th>Contact</th><th>Access</th><th>Expires</th></tr></thead><tbody>`+
+     A.clients.filter(x=>[x.name,x.shop_name,x.email,x.phone].join(' ').toLowerCase().includes(St.q.toLowerCase())).map(x=>{const ss=subsFor(x.user_id),a=liveSub(ss),u=accessUntil(ss);return `<tr><td><b>${esc(x.shop_name)}</b></td><td>${esc(x.name)}</td><td>${esc(x.email)}<div class="mut" style="font-size:12px">${esc(x.phone)}</div></td><td>${a?`<span class="bd ok">${a.plan}</span>`:'<span class="bd no">locked</span>'}</td><td>${u?fmt(u)+' ('+daysLeft(u)+'d)':'—'}</td></tr>`}).join('')+`</tbody></table></div>`,
+   subs:`<div class="tw"><table><thead><tr><th>Client</th><th>Plan</th><th>Start</th><th>Expiry</th><th>Status</th><th></th></tr></thead><tbody>`+A.subs.map(x=>{const exp=new Date(x.expires_at)<=new Date(),stt=x.status==='cancelled'?'cancelled':exp?'expired':'active';return `<tr><td>${esc(by[x.user_id]&&by[x.user_id].shop_name||'—')}</td><td>${x.plan}</td><td>${fmt(x.starts_at)}</td><td>${fmt(x.expires_at)}</td><td><span class="bd ${stt==='active'?'ok':'no'}">${stt}</span></td><td><button class="btn s o" data-act="ext" data-id="${x.id}">Extend</button> ${x.status==='active'?`<button class="btn s o" data-act="can" data-id="${x.id}">Cancel</button>`:''}</td></tr>`}).join('')+`</tbody></table></div>`,
+   codes:`<div class="row" style="margin-bottom:14px"><div><label style="margin-top:0">Code (blank = auto-generate)</label><input data-f="ncode" value="${esc(St.newCode.code)}"></div><div style="flex:0 0 120px"><label style="margin-top:0">Max uses</label><input type="number" min="1" data-f="nmax" value="${St.newCode.max}"></div><div style="flex:0 0 auto"><button class="btn" data-act="addcode">Create code</button></div></div><div class="tw"><table><thead><tr><th>Code</th><th>Used</th><th>Active</th><th></th></tr></thead><tbody>`+A.codes.map(x=>`<tr><td class="mono" style="letter-spacing:0">${esc(x.code)}</td><td>${x.used_count} / ${x.max_uses}</td><td><input type="checkbox" style="width:auto" data-act="togcode" data-id="${x.id}" ${x.active?'checked':''}></td><td><button class="btn s o" data-act="delcode" data-id="${x.id}">Delete</button></td></tr>`).join('')+`</tbody></table></div>`,
+   settings:`<div class="card" style="max-width:460px"><label style="margin-top:0">Your UPI ID</label><input data-f="upi" placeholder="yourname@okhdfcbank" value="${esc(St.set.upi_id)}"><label>Payee name (shown in UPI app)</label><input data-f="payee" value="${esc(St.set.payee_name)}"><label>Premium price (₹/month)</label><input type="number" min="1" data-f="pprice" value="${esc(St.set.premium_price)}"><div style="margin-top:18px"><button class="btn" data-act="saveset">Save</button></div></div>`};
+  const names={payments:'Payments'+(pend?' ('+pend+')':''),clients:'Clients',subs:'Subscriptions',codes:'Trial codes',settings:'Payment settings'};
+  const keep=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.f,pos=keep&&document.activeElement.selectionStart;
+  app(`<div class="mono eye">Admin</div><h1 style="font-size:34px">Admin dashboard</h1>
+   <div class="stats">${[['Clients',A.clients.length],['Active access',act],['Pending payments',pend],['Revenue','₹'+rev]].map(([l,v])=>`<div class="stat"><span class="mono mut">${l}</span><b>${v}</b></div>`).join('')}</div>
+   <div class="tabs">${Object.keys(names).map(t=>`<button class="${St.tab===t?'on':''}" data-tab="${t}">${names[t]}</button>`).join('')}</div>${T[St.tab]}`);
+  if(keep){const el=document.querySelector('[data-f="'+keep+'"]');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(e){}}}
+}
+async function adminDo(fn,msg){const r=await fn();if(r&&r.error)return toast(r.error.message);if(msg)toast(msg);viewAdmin()}
+
+// ---------- events (delegated)
+document.addEventListener('click',async e=>{
+  const g=e.target.closest('[data-go]');if(g){e.preventDefault();return go(g.dataset.go)}
+  const tb=e.target.closest('[data-tab]');if(tb){St.tab=tb.dataset.tab;return drawAdmin()}
+  const a=e.target.closest('[data-act]');if(!a||a.type==='checkbox')return;const id=a.dataset.id;
+  switch(a.dataset.act){
+   case'out':await sb.auth.signOut();await loadUser();go('plans');break;
+   case'mode':St.mode=St.mode==='in'?'up':'in';viewAuth();break;
+   case'redeem':redeem();break;
+   case'pay':pay();break;
+   case'rev':{const ok=a.dataset.ok==='1';const note=ok?null:prompt('Reason for rejecting (shown to client):');
+     adminDo(()=>sb.rpc('review_payment',{_payment_id:id,_approve:ok,...(note?{_note:note}:{})}),ok?'Payment approved — 1 month activated':'Payment rejected');break}
+   case'ext':{const d=Number(prompt('Extend by how many days?','7'));if(!d||d<1)break;const s=St.adm.subs.find(x=>x.id===id),base=new Date(Math.max(+new Date(s.expires_at),Date.now()));
+     adminDo(()=>sb.from('subscriptions').update({expires_at:new Date(+base+d*DAY).toISOString(),status:'active'}).eq('id',id));break}
+   case'can':if(confirm('Cancel this subscription? Client access will be locked.'))adminDo(()=>sb.from('subscriptions').update({status:'cancelled'}).eq('id',id));break;
+   case'addcode':{const code=St.newCode.code.trim()||Math.random().toString(36).slice(2,10).toUpperCase();
+     adminDo(()=>sb.from('trial_codes').insert({code,max_uses:Math.max(1,St.newCode.max)}),'Code '+code+' created');St.newCode={code:'',max:1};break}
+   case'delcode':if(confirm('Delete this code?'))adminDo(()=>sb.from('trial_codes').delete().eq('id',id));break;
+   case'saveset':{const s=St.set;if(!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(String(s.upi_id).trim()))return toast('Enter a valid UPI ID, e.g. name@okhdfcbank');
+     const {error}=await sb.from('app_settings').update({upi_id:String(s.upi_id).trim(),payee_name:s.payee_name,premium_price:Number(s.premium_price),updated_at:new Date().toISOString()}).eq('id',1);
+     if(error)return toast(error.message);toast('Payment settings saved');settings={...s,premium_price:Number(s.premium_price)};break}
+  }
+});
+document.addEventListener('change',e=>{const a=e.target;if(a.dataset.act==='togcode'){const c=St.adm.codes.find(x=>x.id===a.dataset.id);adminDo(()=>sb.from('trial_codes').update({active:!c.active}).eq('id',c.id))}});
+document.addEventListener('input',e=>{const t=e.target,f=t.dataset.f,sf=t.dataset.sf;
+  if(sf)St.form[sf]=t.value;
+  else if(f==='email'||f==='pw')St[f]=t.value;
+  else if(f==='code'){St.code=t.value;const b=document.querySelector('[data-act="redeem"]');if(b)b.disabled=busy||!St.code.trim()}
+  else if(f==='utr'){St.utr=t.value;const b=document.querySelector('[data-act="pay"]');if(b)b.disabled=busy||St.utr.trim().length<6}
+  else if(f==='q'){St.q=t.value;drawAdmin()}
+  else if(f==='ncode')St.newCode.code=t.value.toUpperCase();
+  else if(f==='nmax')St.newCode.max=Number(t.value);
+  else if(f==='upi')St.set.upi_id=t.value;else if(f==='payee')St.set.payee_name=t.value;else if(f==='pprice')St.set.premium_price=t.value;
+});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target.dataset.form;if(f==='auth')doAuth();else if(f==='details')saveDetails(e.target.dataset.plan)});
+boot();
+</script>
+</body></html>

@@ -1,0 +1,1 @@
+insert into public.trial_codes (code, max_uses, active) values ('Welcome@14', 100000, true) on conflict (code) do nothing;

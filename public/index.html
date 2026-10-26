@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smart QR Print System</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f6f8fc;--card:#fff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--pri:#2f5be7;--sel:#dce6fb;--ok:#22a06b;--amb:#e8a23a;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#121a30;--ink:#e8edf8;--mut:#8b97b3;--line:#232d4a;--sel:#1d2f63;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#121a30;--ink:#e8edf8;--mut:#8b97b3;--line:#232d4a;--sel:#1d2f63;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.mono{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-size:11px}
+aside{background:#0c1426;color:#cbd5e8;padding:24px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:12px;align-items:center;margin-bottom:28px}.logo{width:38px;height:38px;border-radius:10px;background:var(--pri);display:grid;place-items:center;color:#fff;font-size:18px}
+.brand b{letter-spacing:.2em;color:#fff;font-size:15px;display:block}.brand span{font-size:10px;letter-spacing:.2em;color:#7f8cab}
+.shop{border:1px solid #223054;padding:12px;display:flex;gap:10px;align-items:center;margin-bottom:26px}
+.av{width:38px;height:38px;background:var(--amb);color:#3a2800;display:grid;place-items:center;font-weight:700;flex:none}
+.shop small{color:#8794b3;display:block;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+.sec{font-size:10px;letter-spacing:.2em;color:#667496;margin:18px 6px 8px}
+.nav{display:flex;gap:12px;align-items:center;width:100%;background:none;border:0;color:#cbd5e8;font:inherit;font-size:15px;padding:12px;border-radius:6px;cursor:pointer;text-align:left}
+.nav.on{background:#2646b8;color:#fff}.nav:hover:not(.on){background:#16203a}
+.sp{flex:1}.agent{border-top:1px solid #223054;padding-top:14px;margin-top:10px;display:flex;gap:10px;align-items:center;font-size:13px}.agent small{display:block;color:#7f8cab}
+main{min-width:0}
+.top{height:76px;border-bottom:1px solid var(--line);background:var(--card);display:flex;justify-content:flex-end;align-items:center;gap:20px;padding:0 36px;font-size:14px;color:var(--mut)}
+.ib{width:42px;height:42px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer;font-size:16px}
+.who{display:flex;gap:10px;align-items:center;color:var(--ink)}.who i{width:34px;height:34px;border-radius:50%;background:var(--amb);display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:#3a2800}
+.page{padding:44px 48px 60px;max-width:1300px}
+.eye{color:var(--pri);display:flex;align-items:center;gap:12px}.eye:before{content:"";width:30px;height:1px;background:var(--pri)}
+h1{font-size:clamp(40px,6vw,72px);line-height:1.05;margin:18px 0 14px;font-weight:500;letter-spacing:-.03em}h1 em{color:var(--pri);font-style:normal}
+.sub{color:var(--mut);font-size:18px;margin:0 0 36px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.open{display:flex;gap:14px;align-items:center}.open .av{width:56px;height:56px;font-size:20px}.open h3{margin:2px 0;font-size:26px;font-weight:500}.open p{margin:0;color:var(--mut);font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:48px;margin-top:20px}
+.step{border-top:1px solid var(--line);padding-top:26px;margin-bottom:30px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.sh h2{margin:0;font-size:24px;font-weight:500;display:flex;gap:16px;align-items:center}
+.n{border:1px solid var(--pri);color:var(--pri);padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:13px}
+.drop{border:1.5px dashed var(--mut);height:190px;display:grid;place-items:center;text-align:center;color:var(--mut);cursor:pointer;background:var(--card)}
+.drop.hov{border-color:var(--pri);background:var(--sel)}.drop b{color:var(--ink);font-size:18px;display:block;margin:8px 0}.drop u{color:var(--pri)}
+.files{margin-top:12px;display:grid;gap:8px}.f{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);padding:10px 14px;font-size:14px}
+.f span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.f input{width:60px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:26px 32px}.opts label{display:block;color:var(--mut);margin-bottom:10px;font-size:15px}
+.seg{display:flex;border:1px solid var(--line);background:var(--card)}.seg button{flex:1;padding:18px 8px;border:0;background:none;color:var(--mut);font:inherit;font-size:15px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border:0}.seg button.on{background:var(--sel);color:var(--pri);font-weight:600}
+.sum{background:var(--card);padding:28px;box-shadow:0 10px 40px rgba(15,23,42,.07);align-self:start;position:sticky;top:20px}
+.row{display:flex;justify-content:space-between;color:var(--mut);margin:16px 0}.row b{color:var(--ink)}
+.tot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:26px;padding-top:34px}.tot b{font-size:40px;font-weight:600}
+.btn{width:100%;padding:20px;border:0;background:var(--pri);color:#fff;font:inherit;font-size:16px;font-weight:500;cursor:pointer;margin-top:22px}
+.btn.g{background:none;color:var(--ink);margin-top:6px}.btn:disabled{opacity:.45;cursor:not-allowed}.btn.sm{width:auto;padding:9px 14px;margin:0;font-size:13px}
+.note{text-align:center;color:var(--mut);font-size:12px;margin-top:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:30px}
+.st{background:var(--card);border:1px solid var(--line);padding:26px}.st i{display:grid;place-items:center;width:46px;height:46px;font-style:normal;font-size:20px;margin-bottom:24px}
+.st p{margin:0;color:var(--mut)}.st b{display:block;font-size:40px;font-weight:600;margin:10px 0 14px}.st small{color:var(--ok)}
+.two{display:grid;grid-template-columns:1fr 360px;gap:24px}
+.box{background:var(--card);border:1px solid var(--line)}.bh{padding:26px 30px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.bh h3{margin:6px 0 0;font-size:24px;font-weight:500}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);padding:10px 12px}
+table{width:100%;border-collapse:collapse;font-size:15px}th{text-align:left;font-weight:400;color:var(--mut);padding:14px 30px;border-bottom:1px solid var(--line);font-size:11px;letter-spacing:.14em}
+td{padding:18px 30px;border-bottom:1px solid var(--line)}td small{color:var(--mut);display:block;margin-top:4px}
+.tw{overflow-x:auto}.pr{display:flex;justify-content:space-between;align-items:center;padding:12px 30px}.pr input{width:90px}
+.badge{display:inline-flex;gap:7px;align-items:center;font-size:13px}.c-Completed{color:var(--ok)}.c-Printing{color:var(--pri)}.c-Awaiting{color:var(--amb)}.c-Declined{color:#d64545}#pt{display:none}@media print{body>*:not(#pt){display:none!important}body{display:block}#pt{display:block;font-family:monospace;padding:24px;color:#000}}
+.sup{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--card);margin-bottom:34px}.sup>div{padding:26px 30px;border-right:1px solid var(--line)}.sup>div:last-child{border:0;display:flex;align-items:center;color:var(--ok);font-size:18px}
+.sup b{font-size:28px;font-weight:500;display:block;margin:6px 0 16px}.bar{height:4px;background:var(--line)}.bar i{display:block;height:100%}
+.job{display:flex;align-items:center;gap:24px;border:1px solid var(--line);background:var(--card);padding:26px;margin-top:14px}
+.job .pg{flex:1}.job .pt{display:flex;justify-content:space-between;color:var(--mut);margin-bottom:10px;font-size:14px}
+.bd{position:fixed;inset:0;background:rgba(15,23,42,.55);display:grid;place-items:center;z-index:50;padding:16px}
+.md{background:var(--card);width:min(480px,100%);padding:40px;text-align:center;position:relative}.md h2{font-size:32px;font-weight:500;margin:14px 0 10px}.md p{color:var(--mut)}
+.md .x{position:absolute;top:16px;right:16px}.md input{width:100%;margin:6px 0;padding:16px}.ic{width:60px;height:60px;background:var(--sel);color:var(--pri);margin:0 auto;display:grid;place-items:center;font-size:24px}
+#toast{position:fixed;right:24px;bottom:24px;background:#0c1426;color:#fff;padding:18px 26px;z-index:60;display:none;font-size:15px}
+.poster{background:var(--card);border:1px solid var(--line);max-width:420px;padding:44px;text-align:center}.poster h2{font-size:34px;margin:6px 0}#qr{display:inline-block;padding:14px;background:#fff;margin:22px 0}
+@media(max-width:1000px){.grid,.two{grid-template-columns:1fr}.stats,.sup{grid-template-columns:1fr 1fr}.sum{position:static}}
+@media(max-width:820px){body{grid-template-columns:1fr}aside{position:static;height:auto;padding:14px}.shop,.agent,.sec,.sp,.brand span{display:none}.brand{margin-bottom:10px}
+ aside nav{display:flex;overflow-x:auto;gap:4px}.nav{white-space:nowrap;padding:10px 12px;font-size:14px}.page{padding:28px 18px}.top{padding:0 16px;gap:10px}.opts{grid-template-columns:1fr}.stats,.sup{grid-template-columns:1fr}}
+</style></head>
+<body>
+<aside>
+ <div class="brand"><div class="logo">▦</div><div><b>SMART QR</b><span>PRINT SYSTEM</span></div></div>
+ <div class="shop"><div class="av">AH</div><div style="flex:1"><b style="color:#fff">Apex Hub</b><small>Counter 01 · Online</small></div><span class="dot"></span></div>
+ <nav>
+  <div class="sec">WORKSPACE</div>
+  <button class="nav" data-v="order">▢ New print order</button>
+  <button class="nav" data-v="dash">▦ Owner dashboard</button>
+  <button class="nav" data-v="queue">⎙ Print queue</button>
+  <button class="nav" data-v="settings">⚙ Pricing &amp; payments</button>
+  <div class="sec">TOOLS</div>
+  <button class="nav" data-v="poster">▣ QR counter poster</button>
+  <a class="nav" href="subscription.html" style="text-decoration:none">★ Subscription</a>
+ </nav>
+ <div class="sp"></div>
+ <button class="nav" id="dm">☾ Dark mode</button>
+ <div class="agent"><span class="dot" id="ad"></span><div><b id="at" style="color:#fff">Local agent ready</b><small>Printer · Apex-01</small></div></div>
+</aside>
+<main>
+ <div class="top"><span><span class="dot"></span>&nbsp; Local history active</span><button class="ib" id="dm2">☾</button><div class="who"><i>OW</i>Owner ▾</div></div>
+ <div class="page" id="pg"></div>
+</main>
+<div id="toast"></div><div id="modal"></div>
+<script>
+const $=s=>document.querySelector(s),E=s=>document.getElementById(s);
+const ld=()=>{try{return JSON.parse(localStorage.getItem('sqp'))}catch(e){return null}};
+let S=ld()||{theme:null,pin:null,pr:{bw:2,col:12,dup:20,a3:3},orders:[{id:'APX-2401',doc:'assignment-final.pdf',pages:12,amt:24,pay:'UPI',st:'Completed',p:100,t:'Today, 09:42'}]};
+const save=()=>{try{localStorage.setItem('sqp',JSON.stringify(S))}catch(e){}};S.set=S.set||{upi:'',wa:'',qr:''};
+let LY={n:1},delArm=null,V='order',unlocked=false,jam=null,files=[],O={col:'bw',sides:'single',size:'A4',ori:'portrait',copies:1},q='',flt='All',want=null;
+const ST={'Completed':'Completed','Printing':'Printing','Awaiting cash':'Awaiting','Pending review':'Awaiting','Declined':'Declined'};
+function theme(t){S.theme=t;document.documentElement.dataset.theme=t;save()}
+theme(S.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+const tg=()=>theme(S.theme=='dark'?'light':'dark');E('dm').onclick=E('dm2').onclick=tg;
+function toast(m){const t=E('toast');t.textContent='✓  '+m;t.style.display='block';clearTimeout(t._);t._=setTimeout(()=>t.style.display='none',2400)}
+const calc=()=>{const im=files.filter(f=>f.img).length,pg=files.filter(f=>!f.img).reduce((a,f)=>a+f.pages,0)+(im?Math.ceil(im/LY.n):0),p=S.pr,per=(O.col=='bw'?p.bw:p.col)+(O.size=='A3'?p.a3:0),base=pg*per*O.copies,d=O.sides=='double'?base*p.dup/100:0;return{pg,base,d,total:Math.round(base-d)}};
+const seg=(k,arr)=>`<div class="seg">${arr.map(([v,l])=>`<button data-k="${k}" data-val="${v}" class="${O[k]==v?'on':''}">${l}</button>`).join('')}</div>`;
+function go(v){if(v!='order'&&!unlocked){want=v;return pinModal()}V=v;draw()}
+document.querySelectorAll('.nav[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
+function pinModal(){E('modal').innerHTML=`<div class="bd"><div class="md"><button class="ib x" id="mx">✕</button><div class="ic">⚙</div><div class="mono" style="margin-top:20px;color:var(--mut)">Owner workspace</div><h2>${S.pin?'Enter owner PIN':'Create your owner PIN'}</h2><p>This PIN stays on this device and protects your dashboard, queue, poster, and payment edits.</p><input id="p1" type="password" inputmode="numeric" maxlength="12" placeholder="${S.pin?'PIN':'4–12 digit PIN'}">${S.pin?'':'<input id="p2" type="password" inputmode="numeric" maxlength="12" placeholder="Repeat PIN">'}<button class="btn" id="pgo">✓ ${S.pin?'Unlock workspace':'Save PIN & open workspace'}</button></div></div>`;
+ E('mx').onclick=()=>E('modal').innerHTML='';
+ E('pgo').onclick=()=>{const a=E('p1').value;if(!/^\d{4,12}$/.test(a))return toast('PIN must be 4–12 digits');
+  if(S.pin){if(btoa(a)!==S.pin)return toast('Wrong PIN')}else{if(a!==E('p2').value)return toast('PINs do not match');S.pin=btoa(a);save()}
+  unlocked=true;E('modal').innerHTML='';toast('Owner workspace unlocked');V=want||'dash';draw()}}
+function newOrder(pay){const c=calc(),id='APX-'+(S.seq=(S.seq||2401)+1),tok=String(1000+Math.floor(Math.random()*9000));
+ S.orders.unshift({id,tok,opt:{...O},doc:files.map(f=>f.name).join(', '),pages:c.pg,amt:c.total,pay,st:pay=='Cash'?'Awaiting cash':'Pending review',p:0,t:'Today, '+new Date().toTimeString().slice(0,5)});
+ save();files=[];O.copies=1;E('modal').innerHTML='';toast('Order '+id+' placed');draw();if(pay=='Cash')cashModal(S.orders[0])}
+function upi(){const c=calc(),u=S.set.upi,has=S.set.qr||u,link=u?`upi://pay?pa=${encodeURIComponent(u)}&pn=Apex%20Hub&am=${c.total}&cu=INR&tn=Print%20order`:'';
+ E('modal').innerHTML=`<div class="bd"><div class="md"><button class="ib x" id="mx">✕</button><div class="mono" style="color:var(--mut)">Pay with UPI</div><h2>₹${c.total}</h2>
+ ${has?`<div id="qr2" style="display:inline-block;padding:12px;background:#fff;margin:6px 0">${S.set.qr?`<img src="${S.set.qr}" style="width:220px;display:block">`:''}</div><p style="margin:4px 0;color:var(--mut)">Scan with any UPI app (GPay, PhonePe, Paytm…)</p>
+ ${u?`<p style="margin:8px 0"><b style="color:var(--ink);font-size:18px">${u}</b> <button class="ib" id="cpu" style="width:auto;height:32px;padding:0 10px;font-size:13px">Copy</button></p><a class="btn" style="display:block;text-decoration:none;margin-top:10px" href="${link}">Open UPI app to pay ₹${c.total}</a>`:`<p>Please pay exactly ₹${c.total}.</p>`}
+ <button class="btn g" id="pd" style="border:1px solid var(--line)">I’ve paid — send to printer</button>`
+ :`<p style="color:var(--amb)">The shop hasn’t set up online payment yet.</p><p>Please choose “Pay cash at counter”, or ask the owner to add a UPI ID or QR under Pricing &amp; payments.</p>`}</div></div>`;
+ try{if(!S.set.qr&&u)new QRCode(E('qr2'),{text:link,width:200,height:200})}catch(e){}
+ E('mx').onclick=()=>E('modal').innerHTML='';const p=E('pd');if(p)p.onclick=()=>newOrder('UPI');
+ const cp=E('cpu');if(cp)cp.onclick=async()=>{try{await navigator.clipboard.writeText(u);toast('UPI ID copied')}catch(e){toast('Copy not available — select the ID manually')}}}
+async function addFiles(list){for(const f of list){if(f.size>25e6){toast(f.name+' is over 25 MB');continue}
+ let pages=1;if(/pdf$/i.test(f.name)){try{const s=new TextDecoder('latin1').decode(await f.arrayBuffer());pages=Math.max(1,(s.match(/\/Type\s*\/Page[^s]/g)||[]).length)}catch(e){}}
+ files.push({name:f.name,pages,file:f,img:/\.(jpe?g|png)$/i.test(f.name)?URL.createObjectURL(f):''})}draw()}
+function waLink(o){const op=o.opt||{},m=`*New cash order — Token #${o.tok}*\nOrder: ${o.id}\nDocument: ${o.doc}\nPages: ${o.pages} x ${op.copies||1} · ${op.col=='bw'?'B&W':'Colour'} · ${op.sides} · ${op.size}\nAmount to collect: ₹${o.amt}\n\nReply *CONFIRM ${o.tok}* to accept or *DECLINE ${o.tok}* to reject.`;return 'https://wa.me/'+S.set.wa+'?text='+encodeURIComponent(m)}
+function cashModal(o){E('modal').innerHTML=`<div class="bd"><div class="md"><button class="ib x" id="mx">✕</button><div class="mono" style="color:var(--mut)">Cash at counter</div><h2>Token #${o.tok}</h2><p>Show this token at the counter. Printing starts once the owner confirms.</p>${S.set.wa?`<a class="btn" style="display:block;text-decoration:none" target="_blank" rel="noopener" href="${waLink(o)}">Send to owner on WhatsApp</a>`:'<p style="color:var(--amb)">Owner WhatsApp number isn’t set yet — ask the counter to confirm.</p>'}</div></div>`;E('mx').onclick=()=>E('modal').innerHTML=''}
+function printTicket(o){let p=E('pt');if(!p){p=document.createElement('div');p.id='pt';document.body.appendChild(p)}const op=o.opt||{};
+ p.innerHTML=`<h2>Apex Hub — Print job</h2><p>Token #${o.tok||'-'} · ${o.id}</p><p>${o.doc}</p><p>${o.pages} pages x ${op.copies||1} · ${op.col=='bw'?'B&amp;W':'Colour'} · ${op.sides||''} · ${op.size||''} · ${op.ori||''}</p><p>Collect ₹${o.amt} (${o.pay})</p>`;try{setTimeout(()=>window.print(),300)}catch(e){}}
+function confirmOrder(id){const o=S.orders.find(x=>x.id==id);o.st='Printing';o.p=0;save();draw();toast('Confirmed — print job started');printTicket(o)}
+const PRL=[['bw','B&amp;W per page'],['col','Colour per page'],['dup','Duplex discount %'],['a3','A3 surcharge per page']];
+function vSettings(){const s=S.set,f='style="width:100%;margin-top:6px"';return`<div class="eye mono">Counter settings</div><h1>Pricing &amp; <em>payments.</em></h1><p class="sub">Set your rates, your own UPI QR, and the WhatsApp number that gets cash-order alerts.</p><button class="btn sm" id="spp" style="margin:0 0 24px">⎙ Print shop QR poster</button>${printersBox()}
+ <div class="two"><div class="box"><div class="bh"><div><div class="mono" style="color:var(--mut)">Rates (₹)</div><h3>Pricing</h3></div></div>${PRL.map(([k,l])=>`<div class="pr"><span style="color:var(--mut)">${l}</span><input type="number" min="0" value="${S.pr[k]}" data-pr="${k}"></div>`).join('')}</div>
+ <div class="box"><div class="bh"><div><div class="mono" style="color:var(--mut)">Payments</div><h3>UPI &amp; WhatsApp</h3></div></div><div style="padding:24px 30px;display:grid;gap:16px">
+ <label>Your UPI ID<input id="sUpi" ${f} placeholder="name@bank" value="${s.upi}"></label>
+ <label>Owner WhatsApp number (with country code)<input id="sWa" ${f} placeholder="919876543210" value="${s.wa}"></label>
+ <label>Your own UPI QR image<input id="sQr" type="file" accept="image/*" ${f}></label>${s.qr?`<img src="${s.qr}" style="width:150px;border:1px solid var(--line)"><button class="btn sm g" id="qrx" style="width:auto">Remove QR image</button>`:''}
+ <button class="btn" id="ssv" style="margin:0">Save settings</button></div></div></div>`}
+function bindSet($$){$$('[data-pr]').forEach(i=>i.onchange=()=>{S.pr[i.dataset.pr]=Math.max(0,+i.value||0);save();toast('Pricing updated')});
+ const rd=()=>{S.set.upi=E('sUpi').value.trim();S.set.wa=E('sWa').value.replace(/\D/g,'')};E('spp').onclick=printPoster;if(window.bindPrn)bindPrn();E('ssv').onclick=()=>{rd();save();toast('Settings saved')};
+ E('sQr').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>1.5e6)return toast('Image is over 1.5 MB');const r=new FileReader();r.onload=()=>{rd();S.set.qr=r.result;save();draw();toast('UPI QR saved')};r.readAsDataURL(f)};
+ const x=E('qrx');if(x)x.onclick=()=>{S.set.qr='';save();draw()}}
+const GR={1:[1,1],2:[1,2],4:[2,2],6:[2,3],9:[3,3]};
+const loadImg=s=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=s});
+async function compose(W,H,col){const ims=files.filter(f=>f.img),[c,r]=GR[LY.n],out=[];
+ for(let p=0;p<ims.length;p+=LY.n){const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  const m=W*.03,cw=(W-m*2)/c,ch=(H-m*2)/r,pd=Math.min(cw,ch)*.03;
+  for(let k=0;k<LY.n&&p+k<ims.length;k++){const f=ims[p+k],im=await loadImg(f.img),cx=m+(k%c)*cw+pd,cy=m+Math.floor(k/c)*ch+pd,w=cw-pd*2,h=ch-pd*2,sc=Math.min(w/im.width,h/im.height)*(f.z||1),dw=im.width*sc,dh=im.height*sc;
+   x.save();x.beginPath();x.rect(cx,cy,w,h);x.clip();x.drawImage(im,cx+(w-dw)/2,cy+(h-dh)/2,dw,dh);x.restore()}
+  if(col=='bw'){const d=x.getImageData(0,0,W,H),a=d.data;for(let i=0;i<a.length;i+=4){const g=.3*a[i]+.59*a[i+1]+.11*a[i+2];a[i]=a[i+1]=a[i+2]=g}x.putImageData(d,0,0)}
+  out.push(cv)}return out}
+async function preview(){const b=E('prev');if(!b)return;const l=O.ori=='landscape',cs=await compose(l?424:300,l?300:424,O.col);b.innerHTML='';cs.forEach(c=>{c.style.cssText='width:150px;border:1px solid var(--line);background:#fff';b.appendChild(c)})}
+function mv(i,d){const im=files.filter(f=>f.img),a=im[i],b=im[i+d];if(!b)return;const x=files.indexOf(a),y=files.indexOf(b);files[x]=b;files[y]=a}
+function layoutUI(){const im=files.filter(f=>f.img);if(!im.length)return'';
+ return`<div style="margin-bottom:26px"><label style="display:block;color:var(--mut);margin-bottom:10px">Photos per page (layout)</label><div class="seg">${[1,2,4,6,9].map(n=>`<button data-ly="${n}" class="${LY.n==n?'on':''}">${n}</button>`).join('')}</div>
+ <div class="files">${im.map((f,i)=>`<div class="f"><img src="${f.img}" style="width:34px;height:34px;object-fit:cover"><span>Slot ${i+1} · ${f.name}</span><button class="ib" data-up="${i}" style="width:30px;height:30px">↑</button><button class="ib" data-dn="${i}" style="width:30px;height:30px">↓</button><span style="flex:none;color:var(--mut);font-size:12px">Zoom</span><input type="range" min="1" max="3" step=".1" value="${f.z||1}" data-z="${i}" style="width:90px;padding:0"></div>`).join('')}</div>
+ <label style="display:block;color:var(--mut);margin:16px 0 8px">Print preview (${Math.ceil(im.length/LY.n)} page${im.length>LY.n?'s':''})</label><div id="prev" style="display:flex;gap:10px;flex-wrap:wrap"></div></div>`}
+function printPoster(){if(!online())return toast('Connect a printer first');const t=document.createElement('div');try{new QRCode(t,{text:location.href.split('#')[0],width:360,height:360})}catch(e){}
+ setTimeout(()=>{const c=t.querySelector('canvas'),src=c?c.toDataURL():(t.querySelector('img')||{}).src||'';let p=E('pt');if(!p){p=document.createElement('div');p.id='pt';document.body.appendChild(p)}
+  p.innerHTML=`<div style="text-align:center;font-family:sans-serif"><h1 style="font-size:48px">Apex Hub</h1><h2>Scan to print</h2><img src="${src}" style="width:360px"><p style="font-size:20px">Upload · Pay · Collect</p></div>`;window.print()},150)}
+const online=()=>window.PSTAT==null?jam!='Printer disconnected':window.PSTAT.connected;
+function printersBox(){const p=window.PRN,on=online(),opt=sel=>(p?p.printers:[]).map(x=>`<option value="${x.name}" ${x.name==sel?'selected':''}>${x.name}${x.ok?'':' (offline)'}</option>`).join('');
+ return`<div class="box" style="margin:0 0 24px;max-width:760px"><div class="bh"><div><div class="mono" style="color:var(--mut)">Printers</div><h3><span class="dot" style="background:${on?'var(--ok)':'#d64545'}"></span> ${on?'Printer connected':'No printer connected'}</h3></div></div>
+ <div style="padding:22px 30px;display:grid;gap:14px">${window.API?`<label>Black &amp; white printer<select id="pbw" style="width:100%;margin-top:6px"><option value="">Default</option>${opt(p&&p.sel.bw)}</select></label><label>Colour printer<select id="pco" style="width:100%;margin-top:6px"><option value="">Default</option>${opt(p&&p.sel.color)}</select></label><div style="display:flex;gap:10px"><button class="btn sm" id="psv">Save printers</button><button class="btn sm g" id="pts" style="border:1px solid var(--line)">Test print</button></div>`:`<p style="color:var(--mut);margin:0">Printer detection runs through the print agent in the server version. Here, try Print queue → “Unplug (demo)” to see the offline state.</p>`}</div></div>`}
+function vOrder(){const c=calc();return`<div class="head"><div><div class="eye mono">Guest printing · no sign-up required</div><h1>Print without<br><em>the queue.</em></h1><p class="sub">Upload your documents, choose your settings, and collect when it’s ready.</p></div>
+ <div class="open"><div class="av">AH</div><div><div class="mono" style="color:var(--ok)">● Open now</div><h3>Apex Hub</h3><p>14 Market Lane, Sector 8</p></div></div></div>
+ <div class="grid"><div>
+ <div class="step"><div class="sh"><h2><span class="n">01</span>Add your documents</h2><span class="mono" style="color:var(--mut)">PDF · DOCX · JPG · PNG</span></div>
+  <div class="drop" id="dz"><div>☁<b>Drop files here or <u>browse</u></b>Up to 25 MB per file · Multiple files accepted</div></div>
+  <input type="file" id="fi" multiple accept=".pdf,.docx,.jpg,.jpeg,.png" hidden>
+  <div class="files">${files.map((f,i)=>`<div class="f">📄<span>${f.name}</span>${f.img?`<img src="${f.img}" style="width:34px;height:34px;object-fit:cover">`:`<small>pages</small><input type="number" min="1" value="${f.pages}" data-i="${i}" class="pgi">`}<button class="ib" data-rm="${i}" style="width:34px;height:34px">✕</button></div>`).join('')}</div></div>
+ <div class="step"><div class="sh"><h2><span class="n">02</span>Make it yours</h2><span class="mono" style="color:var(--mut)">Live pricing</span></div><p style="color:var(--mut);margin:-8px 0 22px;font-size:14px">B&amp;W ₹${S.pr.bw}/page · Colour ₹${S.pr.col}/page · Duplex −${S.pr.dup}% · A3 +₹${S.pr.a3}/page</p>${layoutUI()}
+  <div class="opts"><div><label>Colour</label>${seg('col',[['bw','B&amp;W'],['colour','Colour']])}</div><div><label>Print sides</label>${seg('sides',[['single','Single-sided'],['double','Double-sided']])}</div>
+  <div><label>Paper size</label>${seg('size',[['A4','A4'],['A3','A3'],['Legal','Legal']])}</div><div><label>Orientation</label>${seg('ori',[['portrait','Portrait'],['landscape','Landscape']])}</div></div></div>
+ </div>
+ <div class="sum"><div class="sh" style="margin-bottom:26px"><span class="mono" style="color:var(--mut)">Order summary</span>₹</div>
+  <div class="sh" style="border-bottom:1px solid var(--line);padding-bottom:22px"><b style="font-size:20px;font-weight:500">Your documents</b><span style="color:var(--mut)">${c.pg} selected pages</span></div>
+  <div class="row">Print charge<b>₹${Math.round(c.base)}</b></div><div class="row">Duplex discount<b style="color:var(--ok)">${c.d?'−₹'+Math.round(c.d):'–'}</b></div>
+  <div class="row">Copies<span><button class="ib" id="cm" style="width:30px;height:30px">−</button> <b>× ${O.copies}</b> <button class="ib" id="cp" style="width:30px;height:30px">+</button></span></div>
+  <div class="tot"><span>Estimated total</span><b>₹${c.total}</b></div>${online()?'':'<p style="color:#d64545;font-size:14px;margin:14px 0 0">Shop printer is offline — please try again shortly.</p>'}
+  <button class="btn" id="bu" ${c.pg&&online()?'':'disabled'}>⚡ Pay with UPI →</button><button class="btn g" id="bc" ${c.pg&&online()?'':'disabled'}>Pay cash at counter</button>
+  <div class="note" style="color:var(--ok)">✓ <span style="color:var(--mut)">Secure local checkout · receipt included</span></div></div></div>`}
+function stats(){const t=S.orders.filter(o=>o.st!='Awaiting cash'&&o.st!='Pending review'&&o.st!='Declined'),on=t.filter(o=>o.pay=='UPI');return{rev:t.reduce((a,o)=>a+o.amt,0),onl:on.reduce((a,o)=>a+o.amt,0),n:on.length,pg:t.reduce((a,o)=>a+o.pages,0),act:S.orders.filter(o=>o.st!='Completed'&&o.st!='Declined').length}}
+function vDash(){const s=stats(),h=new Date().getHours(),g=h<12?'morning':h<17?'afternoon':'evening';
+ const rows=S.orders.filter(o=>(flt=='All'||o.st==flt)&&(o.id+o.doc).toLowerCase().includes(q.toLowerCase()));
+ return`<div class="head"><div><div class="eye mono">Owner console</div><h1>Good ${g}, <em>Owner.</em></h1><p class="sub">Everything moving through your counter, at a glance.</p></div>
+ <div style="display:grid;gap:0"><button class="ib" id="csv" style="width:auto;padding:14px 20px">⬇ Export CSV</button><button class="ib" id="clr2" style="width:auto;padding:14px 20px">🧹 Clear completed &amp; rejected</button><button class="ib" id="clr" style="width:auto;padding:14px 20px">🗑 ${delArm=='*'?'Click again to delete ALL':'Delete all orders'}</button><button class="ib" id="lk" style="width:auto;padding:14px 20px">✕ Lock workspace</button></div></div>
+ <div class="stats"><div class="st"><i style="background:var(--sel);color:var(--pri)">₹</i><p>Today’s revenue</p><b>₹${s.rev}</b><small>+12.5% vs yesterday</small></div>
+ <div class="st"><i style="background:#dff5ea;color:var(--ok)">⚡</i><p>Online payments</p><b>₹${s.onl}</b><small>${s.n} transactions</small></div>
+ <div class="st"><i style="background:#fdf0d9;color:var(--amb)">▤</i><p>Pages printed</p><b>${s.pg}</b><small>Across all orders</small></div>
+ <div class="st"><i style="background:#ece6fb;color:#7c5ce0">∿</i><p>Active queue</p><b>${s.act}</b><small>Printer · Apex-01</small></div></div>
+ <div class="two"><div class="box"><div class="bh"><div><div class="mono" style="color:var(--mut)">Transaction log</div><h3>Orders &amp; payments</h3></div><div style="display:flex;gap:8px"><input id="sq" placeholder="Search orders…" value="${q}"><select id="sf">${['All','Pending review','Awaiting cash','Printing','Completed','Declined'].map(x=>`<option ${x==flt?'selected':''}>${x}</option>`).join('')}</select></div></div>
+ <div class="tw"><table><tr><th>ORDER</th><th>DOCUMENT</th><th>AMOUNT</th><th>STATUS</th><th>ACTION</th></tr>${rows.map(o=>`<tr><td>${o.id}${o.tok&&o.pay=='Cash'?' · #'+o.tok:''}<small>${o.t}</small></td><td>📄 ${o.doc}</td><td>₹${o.amt}</td><td><span class="badge c-${ST[o.st]}">● ${o.st}</span></td><td style="white-space:nowrap">${o.st=='Awaiting cash'||o.st=='Pending review'?`<button class="btn sm" data-ok="${o.id}">Approve &amp; print</button> <button class="btn sm" style="background:#d64545" data-no="${o.id}">Reject</button> `:''}<button class="ib" style="width:auto;min-width:34px;height:34px;padding:0 8px" data-del="${o.id}">${delArm==o.id?'Delete?':'🗑'}</button></td></tr>`).join('')||'<tr><td colspan=5 style="color:var(--mut)">No orders found</td></tr>'}</table></div></div>
+ <div class="box"><div class="bh"><div><div class="mono" style="color:var(--mut)">Counter settings</div><h3>Pricing</h3></div>⚙</div><p style="padding:18px 30px 6px;margin:0;color:var(--mut);font-size:14px">Changes apply instantly to new customer orders.</p>
+ ${[['bw','B&amp;W per page'],['col','Colour per page'],['dup','Duplex discount %'],['a3','A3 surcharge']].map(([k,l])=>`<div class="pr"><span style="color:var(--mut)">${l}</span><input type="number" min="0" value="${S.pr[k]}" data-pr="${k}"></div>`).join('')}</div></div>`}
+function vQueue(){const live=S.orders.filter(o=>o.st!='Completed'&&o.st!='Declined').length;
+ const sp=(l,v,c)=>`<div><span style="color:var(--mut)">${l}</span><b>${v}%</b><div class="bar"><i style="width:${v}%;background:${c}"></i></div></div>`;
+ return`<div class="head"><div><div class="eye mono">Local print agent</div><h1>Print <em>queue.</em></h1><p class="sub">Watch each job move from payment to paper.</p></div><div style="color:var(--ok)"><span class="mono">APEX-01 · ${jam?jam.toUpperCase():'READY'}</span><div style="color:var(--mut);font-size:13px;margin-top:6px">Last sync just now</div></div></div>
+ <div class="sup">${sp('Paper tray',jam=='Out of paper'?0:82,'var(--amb)')}${sp('Black ink',64,'var(--amb)')}${sp('Colour ink',91,'var(--ok)')}<div>${jam?'⚠ '+jam:'✓ Ready'}</div></div>
+ <div class="head" style="margin-bottom:6px"><span class="mono" style="color:var(--mut)">Live jobs · ${live}</span><div style="display:flex;gap:8px"><button class="ib" style="width:auto;padding:0 16px" data-jam="Paper jam">⊘ Paper jam</button><button class="ib" style="width:auto;padding:0 16px" data-jam="Out of paper">▭ Out of paper</button>${window.API?'':'<button class="ib" style="width:auto;padding:0 16px" data-jam="Printer disconnected">⏏ Unplug (demo)</button>'}</div></div>
+ ${S.orders.map((o,i)=>`<div class="job"><span class="mono" style="color:var(--mut)">${String(S.orders.length-i).padStart(2,'0')}</span><div style="font-size:26px;color:var(--pri)">📄</div><div style="min-width:160px"><b style="font-size:18px">${o.doc}</b><div style="color:var(--mut);font-size:13px;margin-top:6px">${o.id} · ${o.pages} pages · ${o.pay}</div></div><div class="pg"><div class="pt"><span>${o.st=='Awaiting cash'?'Awaiting cash':o.st=='Printing'&&jam?jam:o.st}</span><span style="color:var(--pri)">${o.p}%</span></div><div class="bar"><i style="width:${o.p}%;background:var(--pri)"></i></div></div><span style="color:var(--ok);font-size:22px">${o.st=='Completed'?'✓':''}</span></div>`).join('')}`}
+function vPoster(){if(!online())return`<div class="eye mono">Tools</div><h1>QR counter <em>poster.</em></h1><p class="sub" style="color:#d64545">No printer connected — connect and switch on your printer to generate the shop QR.</p>`;return`<div class="eye mono">Tools</div><h1>QR counter <em>poster.</em></h1><p class="sub">Stick this at your counter — customers scan and print without signing up.</p>
+ <div class="poster"><div class="mono" style="color:var(--mut)">Scan to print</div><h2>Apex Hub</h2><div id="qr"></div><p style="color:var(--mut);margin:0">Upload · Pay by UPI · Collect</p><p class="mono" style="color:var(--mut);margin-top:14px">14 Market Lane, Sector 8</p></div><button class="btn" id="pp" style="max-width:420px;margin-top:20px">⎙ Print this poster</button>`}
+function draw(){document.querySelectorAll('.nav[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v==V));
+ E('pg').innerHTML={order:vOrder,dash:vDash,queue:vQueue,poster:vPoster,settings:vSettings}[V]();
+ const pc=online();E('ad').style.background=jam?'var(--amb)':pc?'var(--ok)':'#d64545';E('at').textContent=jam?jam:pc?(window.PSTAT?'Printer connected':'Local agent ready'):'No printer connected';
+ if(V=='poster')try{new QRCode(E('qr'),{text:location.href.split('#')[0],width:190,height:190})}catch(e){}
+ if(V=='poster'&&E('pp'))E('pp').onclick=printPoster;
+ bind()}
+function bind(){const $$=s=>document.querySelectorAll(s);
+ if(V=='order'){const dz=E('dz'),fi=E('fi');dz.onclick=()=>fi.click();fi.onchange=()=>addFiles(fi.files);
+  dz.ondragover=e=>{e.preventDefault();dz.classList.add('hov')};dz.ondragleave=()=>dz.classList.remove('hov');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('hov');addFiles(e.dataTransfer.files)};
+  $$('.seg button').forEach(b=>b.onclick=()=>{O[b.dataset.k]=b.dataset.val;draw()});
+  $$('.pgi').forEach(i=>i.onchange=()=>{files[i.dataset.i].pages=Math.max(1,+i.value||1);draw()});$$('[data-rm]').forEach(b=>b.onclick=()=>{files.splice(b.dataset.rm,1);draw()});
+  E('cm').onclick=()=>{O.copies=Math.max(1,O.copies-1);draw()};E('cp').onclick=()=>{O.copies=Math.min(99,O.copies+1);draw()};E('bu').onclick=upi;E('bc').onclick=()=>newOrder('Cash');$$('[data-ly]').forEach(b=>b.onclick=()=>{LY.n=+b.dataset.ly;draw()});$$('[data-up],[data-dn]').forEach(b=>b.onclick=()=>{mv(+(b.dataset.up??b.dataset.dn),b.dataset.up!=null?-1:1);draw()});$$('[data-z]').forEach(i=>i.oninput=()=>{files.filter(f=>f.img)[+i.dataset.z].z=+i.value;preview()});preview()}
+ if(V=='dash'){E('clr2').onclick=()=>{S.orders.filter(o=>o.st=='Completed'||o.st=='Declined').forEach(o=>{if(typeof apiDel=='function')apiDel(o.id)});S.orders=S.orders.filter(o=>o.st!='Completed'&&o.st!='Declined');save();draw();toast('Cleared')};E('clr').onclick=()=>{if(delArm=='*'){apiDel('');S.orders=[];save();delArm=null;toast('All orders deleted')}else delArm='*';draw()};E('lk').onclick=()=>{unlocked=false;V='order';draw();toast('Workspace locked')};
+  E('csv').onclick=async()=>{const t='Order,Document,Pages,Amount,Payment,Status\n'+S.orders.map(o=>[o.id,'"'+o.doc+'"',o.pages,o.amt,o.pay,o.st].join(',')).join('\n');try{await navigator.clipboard.writeText(t);toast('CSV copied to clipboard')}catch(e){toast('Copy not available here')}};
+  E('sq').oninput=e=>{q=e.target.value;draw();const i=E('sq');i.focus();i.setSelectionRange(q.length,q.length)};E('sf').onchange=e=>{flt=e.target.value;draw()};
+  $$('[data-pr]').forEach(i=>i.onchange=()=>{S.pr[i.dataset.pr]=Math.max(0,+i.value||0);save();toast('Pricing updated')});
+  $$('[data-ok]').forEach(b=>b.onclick=()=>confirmOrder(b.dataset.ok));
+  $$('[data-no]').forEach(b=>b.onclick=()=>{decide(b.dataset.no,'decline')});
+  $$('[data-del]').forEach(b=>b.onclick=()=>{const id=b.dataset.del;if(delArm==id){apiDel(id);S.orders=S.orders.filter(x=>x.id!=id);delArm=null;save();toast('Order deleted')}else delArm=id;draw()})}
+ if(V=='settings')bindSet($$);
+ if(V=='queue')$$('[data-jam]').forEach(b=>b.onclick=()=>{jam=jam==b.dataset.jam?null:b.dataset.jam;draw()})}
+setInterval(()=>{if(jam||window.API)return;const o=[...S.orders].reverse().find(x=>x.st=='Printing');if(!o)return;o.p=Math.min(100,o.p+10);if(o.p>=100)o.st='Completed';save();if(V=='queue'||(V=='dash'&&o.p>=100&&document.activeElement.id!='sq'))draw()},900);
+draw();
+</script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="/api-bridge.js"></script></body></html>

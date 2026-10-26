@@ -1,0 +1,8 @@
+<!DOCTYPE html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Developer controls</title>
+<body style="font:16px system-ui;max-width:440px;margin:40px auto;padding:0 16px">
+<h2>Demo license controls</h2><input id="k" type="password" placeholder="DEV_KEY" style="width:100%;padding:12px;box-sizing:border-box">
+<pre id="o" style="background:#f1f5f9;padding:12px;white-space:pre-wrap">Enter key, then tap a button.</pre>
+<div style="display:grid;gap:8px" id="b">
+<button data-m="GET" data-p="/status">Refresh status</button><button data-m="POST" data-p="/lock">🔒 Lock now</button><button data-m="POST" data-p="/unlock">🔓 Unlock</button>
+<button data-m="POST" data-p="/extend/7">+7 days</button><button data-m="POST" data-p="/extend/14">+14 days</button><button data-m="POST" data-p="/activate">✅ Activate full version</button></div>
+<script>b.onclick=async e=>{const t=e.target;if(!t.dataset.p)return;try{const r=await fetch('/admin'+t.dataset.p,{method:t.dataset.m,headers:{'x-dev-key':k.value}});o.textContent=r.ok?JSON.stringify(await r.json(),null,1):'Not authorised ('+r.status+')'}catch(x){o.textContent='Error'}}</script>

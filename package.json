@@ -1,0 +1,1 @@
+{"name": "smart-qr-print-server", "version": "1.0.0", "scripts": {"start": "node server.js", "agent": "node agent.js"}, "dependencies": {"dotenv": "^16.4.5", "express": "^4.19.2", "multer": "^1.4.5-lts.1"}, "optionalDependencies": {"pdf-to-printer": "^5.0.0"}}
